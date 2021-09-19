@@ -1,0 +1,74 @@
+esphome:
+  includes:
+    - VVM.h
+  name: powerstatus2
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: "abcd"
+  password: "12345678"
+  
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Powerstatus2 Fallback Hotspot"
+
+captive_portal:
+
+# Enable logging
+logger:
+   #level: none
+# Enable Home Assistant API
+api:
+  
+ota:
+
+uart:
+  - id: Solar
+    # tx_pin: D1
+    rx_pin: D2
+    baud_rate: 9600
+  
+  - id: Battery
+  #   tx_pin: D3
+    rx_pin: D3
+    baud_rate: 9600
+
+sensor:
+  - platform: custom
+    lambda: |-
+      auto solar_sensor = new VVM(id(Solar));
+      App.register_component(solar_sensor);
+      return {solar_sensor->IS_sensor,solar_sensor->VS_sensor,solar_sensor->PSC_sensor,solar_sensor->PSD_sensor};
+    sensors:
+    - name: "IS"
+      unit_of_measurement: A
+      accuracy_decimals: 2
+    - name: "VS"
+      unit_of_measurement: V
+      accuracy_decimals: 2
+    - name: "PSC"
+      unit_of_measurement: kW
+      accuracy_decimals: 2
+    - name: "PSD"
+      unit_of_measurement: kW
+      accuracy_decimals: 2
+
+  - platform: custom
+    lambda: |-
+      auto battery_sensor = new VVM(id(Battery));
+      App.register_component(battery_sensor);
+      return {battery_sensor->IS_sensor,battery_sensor->VS_sensor,battery_sensor->PSC_sensor,battery_sensor->PSD_sensor};
+    sensors:
+    - name: "IB"
+      unit_of_measurement: A
+      accuracy_decimals: 2
+    - name: "VB"
+      unit_of_measurement: V
+      accuracy_decimals: 2
+    - name: "PBC"
+      unit_of_measurement: kW
+      accuracy_decimals: 2
+    - name: "PBD"
+      unit_of_measurement: kW
+      accuracy_decimals: 2
